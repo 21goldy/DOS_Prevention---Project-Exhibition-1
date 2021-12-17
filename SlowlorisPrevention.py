@@ -22,9 +22,14 @@ while True:
     else:
         print('UFW not installed. To install, enter `sudo apt-get install ufw` into your terminal.')
         break
+
     file = open('blockedIPs.txt', 'a')
+
+    # list of connected IPs to the server and their details
     connectionDetails = os.popen("netstat -ntu|awk '{print $5}'|cut -d: -f1 -s|sort|uniq -c|sort -nk1 -r")
     readDetails = connectionDetails.read()
+    print(readDetails)
+
     scrapedIPs = list(readDetails.split())
     for x in range(len(scrapedIPs)):
         if x % 2 == 0:
@@ -35,9 +40,34 @@ while True:
         if int(y) > allowedConnections:
             if ips[x] != '127.0.0.1' and ips[x] not in blocked_ips:
                 print('Blocking %s with %d connections' % (ips[x], int(y)))
-                os.system(str('ufw insert 2 deny from %s' % ips[x]))
+                # os.system(str('ufw insert 2 deny from %s' % ips[x])) 
                 os.system(str('ufw reload'))
                 blocked_ips.append(ips[x])
                 file.write(ips[x] + '\n')
+
     file.close()
     time.sleep(refreshRate)
+
+    # using iptables to block the ip from the system
+
+    IPTABLES_LIST = os.popen("iptables -L")
+    read_iptables_list = IPTABLES_LIST.read()
+    # print(read_iptables_list)
+
+    os.popen('iptables -I INPUT -s 10.0.2.15 -j DROP')
+
+    # creating a blacklist of bad IPs [Run only once and comment the below line]
+    # os.popen("ipset create blacklist hash:ip hashsize 4096")
+
+    # Set up iptables rules. Match with blacklist and drop traffic [Run only once and comment the below 2 lines]
+    # os.popen("iptables -I INPUT -m set --match-set blacklist src -j DROP") 
+    # os.popen("iptables -I FORWARD -m set --match-set blacklist src -j DROP")
+
+    # Add a specific IP address to your newly created blacklist
+    os.popen("ipset add blacklist ")
+
+    # show details of the blocked ip
+    blocking_IPTABLES = os.popen("ipset list")
+    ip_IPTABLES = blocking_IPTABLES.read()
+    print(ip_IPTABLES)
+    break
