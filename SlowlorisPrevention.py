@@ -8,9 +8,9 @@ import time
 
 
 
-allowedConnections = 15
+allowedConnections = 35
 
-refreshRate = 3
+refreshRate = 5
 
 
 
@@ -42,13 +42,13 @@ while True:
 
         if 'inactive' in response:
 
-            print('UFW Disabled. To enable, enter `sudo ufw enable` into your terminal.')
+            print('UFW Disabled. Enter `sudo ufw enable` into your terminal to enable it.')
 
             break
 
     else:
 
-        print('UFW not installed. To install, enter `sudo apt-get install ufw` into your terminal.')
+        print('UFW not installed. Enter `sudo apt-get install ufw` into your terminal to install it.')
 
         break
 
